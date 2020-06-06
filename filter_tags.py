@@ -108,14 +108,11 @@ def main():
     selected_file = select_file(directory)
     selected_columns = "Tags"
     selected_filter = input_filter()
-    not_filtered_csv = pd.read_csv(selected_file)
     filtered_csv = pd.read_csv(selected_file)
-    not_filtered_short_csv = shorten_function(not_filtered_csv, "total")
     csv_file = filter_function(selected_columns, selected_filter, filtered_csv, save_file)
     shorten_csv = shorten_function(csv_file, save_file)
 
     related = "related"
-    total = "total"
     related_tags_file = related_function(shorten_csv, save_file, related)
     number_function(save_file, related_tags_file, related)
 
