@@ -1,38 +1,8 @@
 import pandas as pd
-import glob
 import os.path
+import sys
 import re
-
-
-def user_input():
-    path = input("Please enter the directory the .csv file is stored in. E.g. C:/Users/.../csv")
-    path.replace("\\", "/")
-    data_directory = list(path)
-    file_name = input("Please enter a file name:")
-    return data_directory, file_name
-
-
-def list_files(list_directory):
-    list_directory.append("/*.csv")
-    found_files = [os.path.basename(x) for x in glob.glob(''.join(list_directory))]
-    list_directory.remove("/*.csv")
-    print("Available Files: " + str(found_files))
-    return found_files
-
-
-def select_file(selected_directory):
-    selected_input = input("Please select a posts file plus extension (e.g. posts.csv)\n")
-    selected_directory.append("/" + selected_input)
-    selected_append = ''.join(selected_directory)
-    print(selected_append)
-    selected_directory.remove("/" + selected_input)
-    try:
-        open(selected_append, "r")
-    except FileNotFoundError:
-        selected_append = False
-        print("File does not exist")
-
-    return selected_append
+from UserSelection import UserSelection
 
 
 def input_filter():
@@ -55,11 +25,13 @@ def filter_function(filter_column, filter_select, filter_csv, filter_file):
 
 def shorten_function(shorten_file, shorten_save):
     new_file = shorten_file[['Id', 'Tags']].copy()
-    new_file.to_csv(shorten_save + "_short.csv")
+    short_save = shorten_save + "_short.csv"
+    new_file.to_csv(short_save)
+    print("File successfully generated as: " + short_save)
     return new_file
 
 
-def related_function(related_shorten, related_file, tag_identifier):
+def related_function(related_shorten, related_file):
     related_shorten['Tags'] = related_shorten['Tags'].str.replace(">", "")
     split_data = related_shorten["Tags"].str.split("<")
     data = split_data.to_list()
@@ -70,15 +42,18 @@ def related_function(related_shorten, related_file, tag_identifier):
     dropped_df = new_df.drop_duplicates(keep="first", inplace=False)
     dropped_df = dropped_df.drop(dropped_df.index[0:1])
     col_name = ['Tags']
-    related_tags_file = related_file + "_" + tag_identifier + "_tags.csv"
+    related_tags_file = related_file + "_related_tags.csv"
     dropped_df.to_csv(related_tags_file, header=col_name)
+
+    print("File successfully generated as: " + related_tags_file)
 
     return related_tags_file
 
 
-def number_function(related_save, related_tags, number_identifier):
+def number_function(related_save, related_tags):
     related_csv = pd.read_csv(related_save + ".csv")
-    related_output = related_save + "_" + number_identifier + "_number"
+    related_output = related_save + "_related_number"
+    related_output_csv = related_output + ".csv"
     header = ["Index", "Tags"]
     related_tag_df = pd.DataFrame(related_csv, columns=header)
     column_related = header[1]
@@ -95,26 +70,29 @@ def number_function(related_save, related_tags, number_identifier):
 
         if i == 0:
             empty_df = pd.DataFrame(data=None)
-            empty_df.to_csv(related_output + ".csv", header=False)
-            temp_df.to_csv(related_output + ".csv", mode='a', header=related_columns)
+            empty_df.to_csv(related_output_csv, header=False)
+            temp_df.to_csv(related_output_csv, mode='a', header=related_columns)
         else:
-            temp_df.to_csv(related_output + ".csv", mode='a', header=False)
+            temp_df.to_csv(related_output_csv, mode='a', header=False)
         i += 1
+
+    print("File successfully generated as: " + related_output_csv)
 
 
 def main():
-    directory, save_file = user_input()
-    list_files(directory)
-    selected_file = select_file(directory)
-    selected_columns = "Tags"
-    selected_filter = input_filter()
-    filtered_csv = pd.read_csv(selected_file)
+    input_prompt = "Please enter the directory the .csv file is stored in. E.g. C:/Users/.../csv"
+    selected_file = UserSelection.user_input(input_prompt)
+    if UserSelection.check_input(selected_file):
+        selected_filter = input_filter()
+        save_file = UserSelection.save_name()
+        selected_columns = "Tags"
+        filtered_csv = pd.read_csv(selected_file)
+    else:
+        sys.exit(1)
     csv_file = filter_function(selected_columns, selected_filter, filtered_csv, save_file)
     shorten_csv = shorten_function(csv_file, save_file)
-
-    related = "related"
-    related_tags_file = related_function(shorten_csv, save_file, related)
-    number_function(save_file, related_tags_file, related)
+    related_tags_file = related_function(shorten_csv, save_file)
+    number_function(save_file, related_tags_file)
 
 
 if __name__ == "__main__":

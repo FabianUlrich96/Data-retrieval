@@ -1,9 +1,23 @@
 import xml.etree.ElementTree as ET
 import csv
+import sys
 from UserSelection import UserSelection
 
 
 def structure_file(structure_selected):
+    try:
+        parse_error = ET.ParseError
+    except ImportError:
+        from xml.parsers import expat
+        parse_error = expat.ExpatError
+
+    try:
+        ET.parse(structure_selected)
+    except parse_error:
+        print(sys.stderr, "Error: wrong file type selected!")
+        print(sys.stderr, "Exception: %s" % str(parse_error))
+        sys.exit(1)
+
     tree = ET.parse(structure_selected)
     root = tree.getroot()
     tag = root.tag
@@ -13,7 +27,7 @@ def structure_file(structure_selected):
 
 
 def initialize_csv_file(search_file):
-    data = open(search_file, 'w', encoding='utf8', newline='')
+    data = open(search_file + ".csv", 'w', encoding='utf8', newline='')
     writer = csv.writer(data)
     search_head = []
     return writer, data
@@ -51,12 +65,12 @@ def parse_file(parse_save, parse_writer, parse_search, parse_root):
 
 def main():
     input_prompt = "Please enter the directory the DataDump is stored in. E.g. C:/Users/.../DataDump"
-    selected_file, file = UserSelection.user_input(input_prompt)
-
+    selected_file = UserSelection.user_input(input_prompt)
+    save_file = UserSelection.save_name()
     structure_root = structure_file(selected_file)
-    csv_writer, data_file = initialize_csv_file(file)
+    csv_writer, data_file = initialize_csv_file(save_file)
     search_terms = input_rows()
-    parse_file(file, csv_writer, search_terms, structure_root)
+    parse_file(save_file, csv_writer, search_terms, structure_root)
     close_csv_file(data_file)
 
 

@@ -1,7 +1,6 @@
 import pandas as pd
-from filter_tags import user_input
-from filter_tags import list_files
-from filter_tags import select_file
+import sys
+from UserSelection import UserSelection
 
 
 def read_function(file_path):
@@ -13,23 +12,38 @@ def read_function(file_path):
 
 
 def trt_function(mobile_number, total_number, save_path):
+    try:
+        try_1 = mobile_number['Number_count']
+        try_2 = total_number['Number_count']
+    except KeyError as key_error:
+        print(sys.stderr, "Error: missing Keyword in column!")
+        print(sys.stderr, "Exception: %s" % str(key_error))
+        sys.exit(1)
+
     data_merged = pd.merge(mobile_number, total_number, on='Tags', how='inner', suffixes=['_1', '_2'])
     data_merged['Number_count'] = data_merged['Number_count_1'] / data_merged['Number_count_2']
     data_output = data_merged[['Tags', 'Number_count']]
     header = ['Tags', 'TRT']
-    data_output.to_csv(save_path + "_TRT.csv", header=header, index=False)
+    trt_save = save_path + "_TRT.csv"
+    data_output.to_csv(trt_save, header=header, index=False)
 
+    print("File successfully generated as: " + trt_save)
 
 # TST = No. of mobile posts/ No. of mobile posts for the most popular tag
 
 
 def tst_function(mobile_number, save_path):
+    try:
+        try_1 = mobile_number['Number_count']
+    except KeyError as key_error:
+        print(sys.stderr, "Error: missing Keyword in column!")
+        print(sys.stderr, "Exception: %s" % str(key_error))
+        sys.exit(1)
     popular_number_count = mobile_number['Number_count'].argmax()
     popular_number = mobile_number.loc[[popular_number_count]]
-    #header = ['Tags', 'TST']
     i = 0
     popular_number_count = popular_number['Number_count'].values[0]
-
+    tst_save = save_path + "_TST.csv"
     for index, row in mobile_number.iterrows():
         tags_row = row['Tags']
         number_row = row['Number_count']
@@ -40,22 +54,28 @@ def tst_function(mobile_number, save_path):
 
         if i == 0:
             empty_df = pd.DataFrame(data=None)
-            empty_df.to_csv(save_path + "_TST.csv", header=False)
-            temp_df.to_csv(save_path + "_TST.csv", mode='a', header=related_columns)
+            empty_df.to_csv(tst_save, header=False)
+            temp_df.to_csv(tst_save, mode='a', header=related_columns)
         else:
-            temp_df.to_csv(save_path + "_TST.csv", mode='a', header=False)
+            temp_df.to_csv(tst_save, mode='a', header=False)
         i += 1
+
+    print("File successfully generated as: " + tst_save)
 
 
 def main():
-    directory, save_name = user_input()
-    list_files(directory)
-    selected_file_1 = select_file(directory)
-    selected_file_2 = select_file(directory)
-    data_1 = read_function(selected_file_1)
-    data_2 = read_function(selected_file_2)
-    trt_function(data_1, data_2, save_name)
-    tst_function(data_1, save_name)
+    input_prompt_1 = "Please select the file with count of MOBILE TAGS"
+    selected_file_1 = UserSelection.user_input(input_prompt_1)
+    input_prompt_2 = "Please select the file with the TOTAL count of tags"
+    selected_file_2 = UserSelection.user_input(input_prompt_2)
+    save_file = UserSelection.save_name()
+    if UserSelection.check_input(selected_file_1) & UserSelection.check_input(selected_file_2):
+        data_1 = read_function(selected_file_1)
+        data_2 = read_function(selected_file_2)
+        trt_function(data_1, data_2, save_file)
+        tst_function(data_1, save_file)
+    else:
+        sys.exit(1)
 
 
 if __name__ == "__main__":
