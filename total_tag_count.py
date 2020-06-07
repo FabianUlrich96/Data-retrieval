@@ -34,7 +34,6 @@ def count_total_function(file_path, new_path):
     data['Tags'].value_counts().reset_index().to_csv(new_path, header=header)
 
 
-
 def main():
     directory, save_name = user_input()
     list_files(directory)
