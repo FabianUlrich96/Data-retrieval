@@ -1,7 +1,5 @@
 import pandas as pd
-from filter_tags import user_input
-from filter_tags import list_files
-from filter_tags import select_file
+from UserSelection import UserSelection
 from filter_tags import shorten_function
 
 
@@ -33,18 +31,20 @@ def count_total_function(file_path, new_path):
     header = ['Tags', 'Number_count']
     data['Tags'].value_counts().reset_index().to_csv(new_path, header=header)
 
+    print("File successfully generated as: " + new_path)
+
 
 def main():
-    directory, save_name = user_input()
-    list_files(directory)
-    selected_file = select_file(directory)
+    input_prompt = "Please enter the directory the .csv file is stored in. E.g. C:/Users/.../csv"
+    selected_file = UserSelection.user_input(input_prompt)
+    save_file = UserSelection.save_name()
     print(selected_file)
     selected_csv = pd.read_csv(selected_file)
-    short_csv = shorten_function(selected_csv, save_name)
-    total_tags_function(short_csv, save_name)
-    delete_empty_rows(save_name + "_short.csv")
+    short_csv = shorten_function(selected_csv, save_file)
+    total_tags_function(short_csv, save_file)
+    delete_empty_rows(save_file + "_short.csv")
 
-    count_total_function(save_name + "_short.csv", save_name + "_count.csv")
+    count_total_function(save_file + "_short.csv", save_file + "_count.csv")
 
 
 if __name__ == "__main__":

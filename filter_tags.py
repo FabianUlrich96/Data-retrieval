@@ -3,6 +3,7 @@ import os.path
 import sys
 import re
 from UserSelection import UserSelection
+from CsvAction import CsvAction
 
 
 def input_filter():
@@ -24,26 +25,30 @@ def filter_function(filter_column, filter_select, filter_csv, filter_file):
 
 
 def shorten_function(shorten_file, shorten_save):
-    new_file = shorten_file[['Id', 'Tags']].copy()
+    short_file = shorten_file[['Id', 'Tags']].copy()
     short_save = shorten_save + "_short.csv"
-    new_file.to_csv(short_save)
-    print("File successfully generated as: " + short_save)
-    return new_file
-
-
-def related_function(related_shorten, related_file):
-    related_shorten['Tags'] = related_shorten['Tags'].str.replace(">", "")
-    split_data = related_shorten["Tags"].str.split("<")
-    data = split_data.to_list()
+    short_file['Tags'] = short_file['Tags'].str.replace(">", "")
+    split_date = short_file['Tags'].str.split("<")
+    data = split_date.to_list()
     header = [1, 2, 3, 4, 5, 6]
     tag_df = pd.DataFrame(data, columns=header)
     new_df = tag_df[1].append(tag_df[2]).append(tag_df[3]).append(tag_df[4]).append(tag_df[5]).append(tag_df[6])
+    col_name = ['Tags']
+    total_tags_file = short_save
+    new_file = new_df.to_csv(total_tags_file, header=col_name)
 
-    dropped_df = new_df.drop_duplicates(keep="first", inplace=False)
+    print("File successfully generated as: " + short_save)
+    return short_save
+
+
+def related_function(related_shorten, related_file):
+    related_shorten = pd.read_csv(related_shorten)
+
+    dropped_df = related_shorten.drop_duplicates(keep="first", inplace=False)
     dropped_df = dropped_df.drop(dropped_df.index[0:1])
     col_name = ['Tags']
     related_tags_file = related_file + "_related_tags.csv"
-    dropped_df.to_csv(related_tags_file, header=col_name)
+    dropped_df.to_csv(related_tags_file, header=True)
 
     print("File successfully generated as: " + related_tags_file)
 
@@ -64,9 +69,9 @@ def number_function(related_save, related_tags):
     for index, row in tags_file_df.iterrows():
         filter_related = re.escape(str(row['Tags']))
         related_df = filter_function(column_related, filter_related, related_tag_df, related_output)
-        related_rows = related_df.count()
+        related_rows = related_df['Tags'].value_counts()
         related_columns = ['Tags', "Number_count"]
-        temp_df = pd.DataFrame([[filter_related, related_rows['Tags']]])
+        temp_df = pd.DataFrame([[filter_related, related_rows]])
 
         if i == 0:
             empty_df = pd.DataFrame(data=None)
@@ -90,8 +95,9 @@ def main():
     else:
         sys.exit(1)
     csv_file = filter_function(selected_columns, selected_filter, filtered_csv, save_file)
-    shorten_csv = shorten_function(csv_file, save_file)
-    related_tags_file = related_function(shorten_csv, save_file)
+    short_save = shorten_function(csv_file, save_file)
+    CsvAction.delete_empty_rows(short_save, "Tags")
+    related_tags_file = related_function(short_save, save_file)
     number_function(save_file, related_tags_file)
 
 
