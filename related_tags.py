@@ -5,6 +5,8 @@ from UserSelection import UserSelection
 from CsvAction import CsvAction
 
 
+
+
 def input_filter():
     input_term = input("Enter the filter term: ")
     print(input_term)
@@ -12,8 +14,10 @@ def input_filter():
 
 
 def filter_function(filter_column, filter_select, filter_csv, filter_file):
+    filter_select = "<" + filter_select + ">"
     filter_term = filter_csv[filter_column].str.contains(filter_select)
     filtered_python = filter_csv[filter_term]
+    print(filtered_python)
     filter_file = filter_file + ".csv"
     if os.path.exists(filter_file):
         pass
@@ -46,6 +50,7 @@ def main():
     else:
         sys.exit(1)
     csv_file = filter_function(selected_columns, selected_filter, filtered_csv, save_file)
+    csv_file[['Id', 'Tags']].to_csv("test1234.csv")
     short_save = CsvAction.shorten_function(csv_file, save_file)
     CsvAction.delete_empty_rows(short_save, "Tags")
     related_function(short_save, save_file)
