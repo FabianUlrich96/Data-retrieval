@@ -4,8 +4,8 @@ from UserSelection import UserSelection
 
 
 def merge_function(file_path, file_path_2, save_path):
-    data_1 = pd.read_csv(file_path, index_col=0)
-    data_2 = pd.read_csv(file_path_2, index_col=0)
+    data_1 = pd.read_csv(file_path)
+    data_2 = pd.read_csv(file_path_2)
     try:
         try_1 = data_1['Tags']
         try_2 = data_2['Tags']
@@ -14,11 +14,13 @@ def merge_function(file_path, file_path_2, save_path):
         print(sys.stderr, "Exception: %s" % str(key_error))
         sys.exit(1)
 
-    data_merged = pd.merge(data_1, data_2, on='Tags', how='inner', suffixes=['_1', '_2'])
-    data_merged['Number_count'] = data_merged['Number_count_1'] + data_merged['Number_count_2']
-    data_output = data_merged[['Tags', 'Number_count']]
     save_path_csv = save_path + ".csv"
-    data_output.to_csv(save_path_csv, header=True, index=False)
+
+    concat_df = pd.concat([data_1, data_2])
+    final_result = concat_df.groupby(['Tags'])['Number_count'].sum()
+    final_result.to_csv(save_path_csv, header=True)
+
+    #data_output.to_csv(save_path_csv, header=True, index=False)
     print("File successfully generated as: " + save_path_csv)
 
 
