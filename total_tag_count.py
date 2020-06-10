@@ -1,22 +1,6 @@
 import pandas as pd
-from filter_tags import user_input
-from filter_tags import list_files
-from filter_tags import select_file
-from filter_tags import shorten_function
-
-
-def total_tags_function(count_shorten, count_name):
-    count_shorten['Tags'] = count_shorten['Tags'].str.replace(">", "")
-    split_date = count_shorten['Tags'].str.split("<")
-    data = split_date.to_list()
-    header = [1, 2, 3, 4, 5, 6]
-    tag_df = pd.DataFrame(data, columns=header)
-    new_df = tag_df[1].append(tag_df[2]).append(tag_df[3]).append(tag_df[4]).append(tag_df[5]).append(tag_df[6])
-    col_name = ['Tags']
-    total_tags_file = count_name + "_short.csv"
-    new_df.to_csv(total_tags_file, header=col_name)
-
-    return total_tags_file
+from UserSelection import UserSelection
+from CsvAction import CsvAction
 
 
 def delete_empty_rows(file_path):
@@ -33,18 +17,18 @@ def count_total_function(file_path, new_path):
     header = ['Tags', 'Number_count']
     data['Tags'].value_counts().reset_index().to_csv(new_path, header=header)
 
+    print("File successfully generated as: " + new_path)
+
 
 def main():
-    directory, save_name = user_input()
-    list_files(directory)
-    selected_file = select_file(directory)
+    input_prompt = "Please enter the directory the .csv file is stored in. E.g. C:/Users/.../csv"
+    selected_file = UserSelection.user_input(input_prompt)
+    save_file = UserSelection.save_name()
     print(selected_file)
     selected_csv = pd.read_csv(selected_file)
-    short_csv = shorten_function(selected_csv, save_name)
-    total_tags_function(short_csv, save_name)
-    delete_empty_rows(save_name + "_short.csv")
-
-    count_total_function(save_name + "_short.csv", save_name + "_count.csv")
+    CsvAction.shorten_function(selected_csv, save_file)
+    CsvAction.delete_empty_rows(save_file + "_short.csv", "Tags")
+    CsvAction.count_values(save_file + "_short.csv", "Tags", save_file + "_count.csv")
 
 
 if __name__ == "__main__":
