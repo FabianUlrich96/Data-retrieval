@@ -70,24 +70,22 @@ To get the total count of tags, the total_tag_count.py file got executed on the 
 
 ### Getting the TRT and TST values
 For the thresholds the threshold_calculation.py got executed selecting the before genereated mobile tags count and total count files. 
-
+TRT results are up to 2 because tags got used together with several of the initial keywords. Since the posts with a TRT value higher than 1 are low volume posts they will be filtered out here and only tags with a TRT < 1 > 0.4 will be used. 
 |Tag|TST|
 |---|---|
-|java|~0,52201|
-|android-fragment| ~0.03553|
-|recyclerview| ~0,03101|
-|listview|~0,02956|
-|activity|~0,02861|
-|xml|~0,02519|
-|sqlite|~0,002508|
-|json|~0,01933|
-
-Unlike Rosen and Shibab's study (2016) the threshold for the TST will be 3% instead of 1% (because the directly following results xml, sqlite and json are not android/mobile specific) and the most popular can not be added to the tags list, because Java as a language is very versitile and not exclusive to android development. 
-
-|Tag|TRT|
+|listview|~ 0,8845|
+|sqlite|~ 0,4391|
+|gradle|~ 0,918|
+|firebase|~ 0,7346|
+|google-play|~ 0,8925|
+|webview|~ 0,8519|
+Like Rosen and Shibab's study (2016) the threshold for the TST will be 1% as suggested in the study. 
+|Tag|TST|
 |---|---|
-
-Still work in progress, problem:
-TRT is sometimes greater than 1, reason:
-Tag was used in combination with several key keywords. How to fix not known! But fix should not be needed anyways
+|listview|0.02956274802490261|
+|sqlite|0.025084647030982638|
+|gradle|0.01671096224560381|
+|firebase|0.016019223067681214|
+|google-play|0.012087231951068554|
+|webview|0.01004842174245458|
 
