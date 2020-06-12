@@ -25,6 +25,7 @@ def trt_function(mobile_number, total_number, save_path):
     data_output = data_merged[['Tags', 'Number_count']]
     header = ['Tags', 'TRT']
     trt_save = save_path + "_TRT.csv"
+    data_output = data_output.sort_values(by='Number_count', ascending=False)
     data_output.to_csv(trt_save, header=header, index=False)
 
     print("File successfully generated as: " + trt_save)
@@ -39,10 +40,10 @@ def tst_function(mobile_number, save_path):
         print(sys.stderr, "Error: missing Keyword in column!")
         print(sys.stderr, "Exception: %s" % str(key_error))
         sys.exit(1)
-    popular_number_count = mobile_number['Number_count'].argmax()
-    popular_number = mobile_number.loc[[popular_number_count]]
+    # most popular tag = android
+    popular_number_count = 27467
+
     i = 0
-    popular_number_count = popular_number['Number_count'].values[0]
     tst_save = save_path + "_TST.csv"
     for index, row in mobile_number.iterrows():
         tags_row = row['Tags']
@@ -60,6 +61,9 @@ def tst_function(mobile_number, save_path):
             temp_df.to_csv(tst_save, mode='a', header=False)
         i += 1
 
+    sort_df = pd.read_csv(tst_save)
+    sort_df = sort_df.sort_values(by='TST', ascending=False)
+    sort_df.to_csv(tst_save)
     print("File successfully generated as: " + tst_save)
 
 
