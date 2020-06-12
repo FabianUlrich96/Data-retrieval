@@ -22,20 +22,25 @@ def trt_function(mobile_number, total_number, save_path):
 
     data_merged = pd.merge(mobile_number, total_number, on='Tags', how='inner', suffixes=['_1', '_2'])
     data_merged['Number_count'] = data_merged['Number_count_1'] / data_merged['Number_count_2']
-    data_output = data_merged[['Tags', 'Number_count']]
-    header = ['Tags', 'TRT']
+
+    data_output = data_merged[['Tags', 'Number_count', 'Number_count_1']]
+    header = ['Tags', 'TRT', 'Mobile_count']
     trt_save = save_path + "_TRT.csv"
     data_output = data_output.sort_values(by='Number_count', ascending=False)
     data_output.to_csv(trt_save, header=header, index=False)
-
+    trt_file = pd.read_csv(trt_save)
+    trt_file = trt_file[trt_file.TRT > 0.4]
+    trt_file = trt_file[trt_file.TRT < 1]
+    trt_file.to_csv(trt_save)
     print("File successfully generated as: " + trt_save)
-
+    return trt_save
 # TST = No. of mobile posts/ No. of mobile posts for the most popular tag
 
 
 def tst_function(mobile_number, save_path):
+    mobile_number = pd.read_csv(mobile_number)
     try:
-        try_1 = mobile_number['Number_count']
+        try_1 = mobile_number['Mobile_count']
     except KeyError as key_error:
         print(sys.stderr, "Error: missing Keyword in column!")
         print(sys.stderr, "Exception: %s" % str(key_error))
@@ -47,7 +52,7 @@ def tst_function(mobile_number, save_path):
     tst_save = save_path + "_TST.csv"
     for index, row in mobile_number.iterrows():
         tags_row = row['Tags']
-        number_row = row['Number_count']
+        number_row = row['Mobile_count']
         tst = number_row/popular_number_count
         related_columns = ['Tags', "TST"]
 
@@ -76,8 +81,8 @@ def main():
     if UserSelection.check_input(selected_file_1) & UserSelection.check_input(selected_file_2):
         data_1 = read_function(selected_file_1)
         data_2 = read_function(selected_file_2)
-        trt_function(data_1, data_2, save_file)
-        tst_function(data_1, save_file)
+        trt = trt_function(data_1, data_2, save_file)
+        tst_function(trt, save_file)
     else:
         sys.exit(1)
 
