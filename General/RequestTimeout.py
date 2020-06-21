@@ -1,7 +1,3 @@
-import time
-import sys
-
-
 class RequestTimeout:
 
     @staticmethod

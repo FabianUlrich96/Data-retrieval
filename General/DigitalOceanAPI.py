@@ -1,6 +1,7 @@
 import digitalocean
 import time
 
+
 class DigitalOceanAPI:
 
     @staticmethod
@@ -30,3 +31,19 @@ class DigitalOceanAPI:
             # Once it shows "completed", droplet is up and running
             status = action.status
             return status
+
+    @staticmethod
+    def delete_droplet(droplet):
+        droplet.destroy()
+
+    @staticmethod
+    def proxy_function():
+        user_input = input("Type True to enable proxies, False to disable proxies: ")
+        if user_input == "True":
+            enable_proxies = True
+            return enable_proxies
+        if user_input == "False":
+            enable_proxies = False
+            return enable_proxies
+        else:
+            DigitalOceanAPI.proxy_function()

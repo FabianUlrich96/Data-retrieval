@@ -45,26 +45,29 @@ class GetRevisions:
         columns = ["Post", "Reputation", "User_Id"]
         data = pd.DataFrame(columns=columns)
         j = 0
-        for user_id in ids:
-            if user_id:
-                pass
-            else:
-                user_id = None
-            add_data = data.append({'Post': revision_url, 'Reputation': reputations[j], 'User_Id': user_id},
-                                   ignore_index=True)
-            j += 1
-            conn = sqlite3.connect(db_file)
-            if i == 0:
-                sql_create_revisions_table = """ CREATE TABLE IF NOT EXISTS revisions (
-                                                       post text PRIMARY KEY,
-                                                       reputation text ,
-                                                       user_id text                                                  
-                                                   ); """
-                DatabaseConnection.create_table(conn, sql_create_revisions_table)
-                add_data.to_sql('revisions', conn, if_exists='replace', index=False)
+        if ids is None:
+            user_id = None
+        else:
+            for user_id in ids:
+                if user_id:
+                    pass
+                else:
+                    user_id = None
+                add_data = data.append({'Post': revision_url, 'Reputation': reputations[j], 'User_Id': user_id},
+                                       ignore_index=True)
+                j += 1
+                conn = sqlite3.connect(db_file)
+                if i == 0:
+                    sql_create_revisions_table = """ CREATE TABLE IF NOT EXISTS revisions (
+                                                           post text PRIMARY KEY,
+                                                           reputation text ,
+                                                           user_id text                                                  
+                                                       ); """
+                    DatabaseConnection.create_table(conn, sql_create_revisions_table)
+                    add_data.to_sql('revisions', conn, if_exists='replace', index=False)
 
-            else:
-                add_data.to_sql('revisions', conn, if_exists='append', index=False)
+                else:
+                    add_data.to_sql('revisions', conn, if_exists='append', index=False)
 
 
 

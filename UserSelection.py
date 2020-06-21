@@ -16,7 +16,7 @@ class UserSelection:
     @staticmethod
     def save_name():
         file_name = input("Please enter a file name:")
-        replacements = [(":", "_"), ("/", "_"), ("\\?", ""), ("<", ""), (">", ""), ("\\*", "_"), ("\\|", ""), ("\\\\", "_"),('"', "")]
+        replacements = [(":", "_"), ("/", "_"), ("\\?", ""), ("<", ""), (">", ""), ("\\*", "_"), ("\\|", ""), ("\\\\", "_"), ('"', "")]
         for pattern, replacement in replacements:
             file_name = re.sub(pattern, replacement, file_name)
 

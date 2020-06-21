@@ -5,6 +5,7 @@ from UserSelection import UserSelection
 from CsvAction import CsvAction
 
 
+
 def input_filter():
     input_term = input("Enter the filter term: ")
     print(input_term)
